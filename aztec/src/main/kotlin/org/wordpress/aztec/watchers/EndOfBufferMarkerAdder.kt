@@ -18,7 +18,8 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
     override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-        deletedText = before > 0
+        // count < before to take into account auto-corrected words
+        deletedText = before > 0 && count < before
     }
 
     override fun afterTextChanged(text: Editable) {
@@ -43,8 +44,10 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
 
             if (text.isEmpty()) {
                 if (text.getSpans(0, 0, IAztecBlockSpan::class.java).isNotEmpty()) {
-                    // need to add a end-of-text marker so a block element can render in the empty text.
-                    text.append(Constants.END_OF_BUFFER_MARKER)
+                     // need to add a end-of-text marker so a block element can render in the empty text.
+                     if (!deletedText) {
+                          text.append(Constants.END_OF_BUFFER_MARKER)
+                     }
                 }
                 return text
             } else if (text.length == 1 && text[0] == Constants.END_OF_BUFFER_MARKER && deletedText) {
