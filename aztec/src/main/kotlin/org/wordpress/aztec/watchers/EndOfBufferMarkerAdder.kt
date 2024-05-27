@@ -36,20 +36,18 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
     }
 
     companion object {
-        private val watchers = mutableMapOf<AztecText, EndOfBufferMarkerAdder>()
+        private var watcherRef: EndOfBufferMarkerAdder? = null
 
         fun install(editText: AztecText): EndOfBufferMarkerAdder {
             var watcher = EndOfBufferMarkerAdder(editText.text)
             editText.addTextChangedListener(watcher)
-            watchers[editText] = watcher
+            watcherRef = watcher
             return watcher
         }
 
         fun uninstall(editText: AztecText) {
-            val watcher = watchers[editText]
-            if (watcher != null) {
-                editText.removeTextChangedListener(watcher)
-                watchers.remove(editText)
+            if (watcherRef != null) {
+                editText.removeTextChangedListener(watcherRef)
             }
         }
 
