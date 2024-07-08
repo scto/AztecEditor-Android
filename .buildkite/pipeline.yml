@@ -1,15 +1,15 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json
 ---
 
-# Run everything on the `android` queue
-agents:
-  queue: android
-
 # Nodes with values to reuse in the pipeline.
 common_params:
   # Common plugin settings to use with the `plugins` key.
   - &common_plugins
     - automattic/a8c-ci-toolkit#2.14.0
+
+# Run everything on the `android` queue
+agents:
+  queue: android
 
 steps:
   - label: "Gradle Wrapper Validation"
