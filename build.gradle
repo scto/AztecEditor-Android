@@ -29,6 +29,7 @@ allprojects {
     }
     tasks.withType(KotlinCompile).all {
         kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_1_8
             allWarningsAsErrors = true
         }
     }
