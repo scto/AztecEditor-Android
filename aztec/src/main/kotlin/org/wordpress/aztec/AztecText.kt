@@ -542,7 +542,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 exclusiveBlockStyles = BlockFormatter.ExclusiveBlockStyles(styles.getBoolean(R.styleable.AztecText_exclusiveBlocks, false), verticalParagraphPadding),
                 paragraphStyle = BlockFormatter.ParagraphStyle(verticalParagraphMargin)
         )
-        EnhancedMovementMethod.setTaskListClickHandler(TaskListClickHandler(listStyle))
+        EnhancedMovementMethod.taskListClickHandler = TaskListClickHandler(listStyle)
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
                 R.styleable.AztecText_linkColor, 0),
@@ -955,7 +955,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             blockEditorDialog!!.dismiss()
         }
         EnhancedMovementMethod.setLinkTappedListener(null)
-        EnhancedMovementMethod.setTaskListClickHandler(null)
     }
 
     // We are exposing this method in order to allow subclasses to set their own alpha value

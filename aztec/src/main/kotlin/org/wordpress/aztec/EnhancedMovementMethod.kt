@@ -15,13 +15,10 @@ import java.lang.ref.WeakReference
  * http://stackoverflow.com/a/23566268/569430
  */
 object EnhancedMovementMethod : ArrowKeyMovementMethod() {
-    private var taskListClickHandlerRef: WeakReference<TaskListClickHandler?> = WeakReference(null)
+    var taskListClickHandler: TaskListClickHandler? = null
     private var linkTappedListenerRef: WeakReference<AztecText.OnLinkTappedListener?> = WeakReference(null)
     var isLinkTapEnabled = false
 
-    fun setTaskListClickHandler(handler: TaskListClickHandler?) {
-        taskListClickHandlerRef = WeakReference(handler)
-    }
 
     fun setLinkTappedListener(listener: AztecText.OnLinkTappedListener?) {
         linkTappedListenerRef = WeakReference(listener)
@@ -47,7 +44,7 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
             // This handles the case when the task list checkbox is clicked
-            if (taskListClickHandlerRef.get()?.handleTaskListClick(text, off, x, widget.totalPaddingStart) == true) {
+            if (taskListClickHandler?.handleTaskListClick(text, off, x, widget.totalPaddingStart) == true) {
                 return true
             }
 
