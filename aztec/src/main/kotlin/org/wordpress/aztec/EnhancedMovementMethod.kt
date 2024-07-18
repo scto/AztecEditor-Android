@@ -47,7 +47,7 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
             // This handles the case when the task list checkbox is clicked
-            if (taskListClickHandlerRef.get()?.handleTaskListClick(text, off, x, widget.totalPaddingStart) == true){
+            if (taskListClickHandlerRef.get()?.handleTaskListClick(text, off, x, widget.totalPaddingStart) == true) {
                 return true
             }
 
