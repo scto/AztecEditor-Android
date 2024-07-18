@@ -19,7 +19,6 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
     private var linkTappedListenerRef: WeakReference<AztecText.OnLinkTappedListener?> = WeakReference(null)
     var isLinkTapEnabled = false
 
-
     fun setLinkTappedListener(listener: AztecText.OnLinkTappedListener?) {
         linkTappedListenerRef = WeakReference(listener)
     }
