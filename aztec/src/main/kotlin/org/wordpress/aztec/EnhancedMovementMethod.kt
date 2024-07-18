@@ -9,14 +9,23 @@ import android.widget.TextView
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
+import java.lang.ref.WeakReference
 
 /**
  * http://stackoverflow.com/a/23566268/569430
  */
 object EnhancedMovementMethod : ArrowKeyMovementMethod() {
-    var taskListClickHandler: TaskListClickHandler? = null
+    private var taskListClickHandlerRef: WeakReference<TaskListClickHandler?> = WeakReference(null)
+    private var linkTappedListenerRef: WeakReference<AztecText.OnLinkTappedListener?> = WeakReference(null)
     var isLinkTapEnabled = false
-    var linkTappedListener: AztecText.OnLinkTappedListener? = null
+
+    fun setTaskListClickHandler(handler: TaskListClickHandler?) {
+        taskListClickHandlerRef = WeakReference(handler)
+    }
+
+    fun setLinkTappedListener(listener: AztecText.OnLinkTappedListener?) {
+        linkTappedListenerRef = WeakReference(listener)
+    }
 
     override fun onTouchEvent(widget: TextView, text: Spannable, event: MotionEvent): Boolean {
         val action = event.action
@@ -38,7 +47,9 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
             // This handles the case when the task list checkbox is clicked
-            if (taskListClickHandler?.handleTaskListClick(text, off, x, widget.totalPaddingStart) == true) return true
+            if (taskListClickHandlerRef.get()?.handleTaskListClick(text, off, x, widget.totalPaddingStart) == true){
+                return true
+            }
 
             // get the character's position. This may be the left or the right edge of the character so, find the
             //  other edge by inspecting nearby characters (if they exist)
@@ -85,7 +96,7 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
                     link.onClick(widget)
                     return true
                 } else if (link is AztecURLSpan && isLinkTapEnabled) {
-                    linkTappedListener?.onLinkTapped(widget, link.url) ?: link.onClick(widget)
+                    linkTappedListenerRef.get()?.onLinkTapped(widget, link.url) ?: link.onClick(widget)
                     return true
                 }
             }
