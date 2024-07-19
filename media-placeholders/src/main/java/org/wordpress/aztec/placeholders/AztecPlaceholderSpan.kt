@@ -11,7 +11,6 @@ import org.wordpress.aztec.spans.IAztecSpan
 import java.lang.ref.WeakReference
 
 class AztecPlaceholderSpan(
-        context: Context,
         drawable: Drawable?,
         override var nestingLevel: Int,
         attributes: AztecAttributes = AztecAttributes(),
@@ -19,7 +18,7 @@ class AztecPlaceholderSpan(
         editor: AztecText? = null,
         private val adapter: WeakReference<PlaceholderManager.PlaceholderAdapter>,
         override val TAG: String) :
-        AztecMediaSpan(context, drawable, attributes, onMediaDeletedListener, editor), IAztecFullWidthImageSpan, IAztecSpan {
+        AztecMediaSpan(drawable, attributes, onMediaDeletedListener, editor), IAztecFullWidthImageSpan, IAztecSpan {
     override fun onClick() {
 
     }

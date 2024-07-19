@@ -12,7 +12,7 @@ class AztecAudioSpan(context: Context, drawable: Drawable?, override var nesting
                      var onAudioTappedListener: AztecText.OnAudioTappedListener? = null,
                      onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
                      editor: AztecText? = null) :
-        AztecMediaSpan(context, drawable, attributes, onMediaDeletedListener, editor), IAztecFullWidthImageSpan, IAztecSpan {
+        AztecMediaSpan(drawable, attributes, onMediaDeletedListener, editor), IAztecFullWidthImageSpan, IAztecSpan {
     override val TAG: String = "audio"
 
     init {

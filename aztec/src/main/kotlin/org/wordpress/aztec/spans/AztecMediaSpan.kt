@@ -1,6 +1,5 @@
 package org.wordpress.aztec.spans
 
-import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
@@ -11,9 +10,9 @@ import org.wordpress.aztec.AztecText
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 
-abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
+abstract class AztecMediaSpan(drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
                               var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
-                              editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), IAztecAttributedSpan {
+                              editor: AztecText? = null) : AztecDynamicImageSpan(drawable), IAztecAttributedSpan {
     abstract val TAG: String
 
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
