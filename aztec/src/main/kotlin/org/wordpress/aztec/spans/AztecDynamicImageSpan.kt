@@ -1,6 +1,5 @@
 package org.wordpress.aztec.spans
 
-import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
@@ -9,7 +8,7 @@ import android.text.style.DynamicDrawableSpan
 import org.wordpress.aztec.AztecText
 import java.lang.ref.WeakReference
 
-abstract class AztecDynamicImageSpan(val context: Context, protected var imageDrawable: Drawable?) : DynamicDrawableSpan() {
+abstract class AztecDynamicImageSpan(protected var imageDrawable: Drawable?) : DynamicDrawableSpan() {
     var textView: WeakReference<AztecText>? = null
     var aspectRatio: Double = 1.0
 
