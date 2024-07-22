@@ -104,7 +104,6 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         }
 
         val span = AztecHorizontalRuleSpan(
-                editor.context,
                 AppCompatResources.getDrawable(editor.context, R.drawable.img_hr)!!,
                 nestingLevel,
                 AztecAttributes(),
@@ -134,7 +133,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     fun insertImage(inline: Boolean, drawable: Drawable?, attributes: Attributes, onImageTappedListener: AztecText.OnImageTappedListener?,
                     onMediaDeletedListener: AztecText.OnMediaDeletedListener?) {
         val nestingLevel = if (inline) IAztecNestable.getNestingLevelAt(editableText, selectionStart) else 0
-        val span = AztecImageSpan(editor.context, drawable, nestingLevel, AztecAttributes(attributes), onImageTappedListener,
+        val span = AztecImageSpan(drawable, nestingLevel, AztecAttributes(attributes), onImageTappedListener,
                 onMediaDeletedListener, editor)
         insertMediaSpan(inline, span)
     }

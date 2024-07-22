@@ -120,7 +120,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             IMAGE -> {
-                handleMediaElement(opening, output, AztecImageSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecImageSpan(loadingDrawable, nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             VIDEO -> {
@@ -145,7 +145,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             LINE -> {
                 if (opening) {
                     // Add an extra newline above the line to prevent weird typing on the line above
-                    start(output, AztecHorizontalRuleSpan(context, AppCompatResources.getDrawable(context, R.drawable.img_hr)!!,
+                    start(output, AztecHorizontalRuleSpan(AppCompatResources.getDrawable(context, R.drawable.img_hr)!!,
                             nestingLevel, AztecAttributes(attributes)))
                     output.append(Constants.MAGIC_CHAR)
                 } else {

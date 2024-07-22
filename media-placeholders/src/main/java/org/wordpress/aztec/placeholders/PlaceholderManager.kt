@@ -99,7 +99,7 @@ class PlaceholderManager(
                 ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
         val attrs = getAttributesForMedia(type, attributes)
         val drawable = buildPlaceholderDrawable(adapter, attrs)
-        aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
+        aztecText.insertMediaSpan(AztecPlaceholderSpan(drawable, 0, attrs,
                 this, aztecText, WeakReference(adapter), TAG = htmlTag))
         insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE))
     }
@@ -166,7 +166,7 @@ class PlaceholderManager(
         attrs.setValue(UUID_ATTRIBUTE, uuid)
         attrs.setValue(TYPE_ATTRIBUTE, type)
         val drawable = buildPlaceholderDrawable(adapter, attrs)
-        val span = AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
+        val span = AztecPlaceholderSpan(drawable, 0, attrs,
                 this, aztecText, WeakReference(adapter), TAG = htmlTag)
         aztecText.replaceMediaSpan(span) { attributes ->
             attributes.getValue(UUID_ATTRIBUTE) == uuid
@@ -460,7 +460,6 @@ class PlaceholderManager(
             aztecAttributes.setValue(UUID_ATTRIBUTE, generateUuid())
             val drawable = runBlocking { buildPlaceholderDrawable(adapter, aztecAttributes) }
             val span = AztecPlaceholderSpan(
-                    context = aztecText.context,
                     drawable = drawable,
                     nestingLevel = nestingLevel,
                     attributes = aztecAttributes,

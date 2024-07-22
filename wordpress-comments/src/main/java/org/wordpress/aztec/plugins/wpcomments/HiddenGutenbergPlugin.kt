@@ -61,7 +61,6 @@ class HiddenGutenbergPlugin @JvmOverloads constructor(private val aztecText: Azt
             output.setSpan(
                     GutenbergInlineCommentSpan(
                             text,
-                            aztecText.context,
                             AppCompatResources.getDrawable(aztecText.context, android.R.drawable.ic_menu_help)!!,
                             nestingLevel
                     ),
