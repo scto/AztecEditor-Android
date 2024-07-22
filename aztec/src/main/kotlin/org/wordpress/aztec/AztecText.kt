@@ -954,6 +954,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
             blockEditorDialog!!.dismiss()
         }
+        EnhancedMovementMethod.setLinkTappedListener(null)
     }
 
     // We are exposing this method in order to allow subclasses to set their own alpha value
@@ -1178,7 +1179,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     fun setOnLinkTappedListener(listener: OnLinkTappedListener) {
-        EnhancedMovementMethod.linkTappedListener = listener
+        EnhancedMovementMethod.setLinkTappedListener(listener)
     }
 
     fun setLinkTapEnabled(isLinkTapEnabled: Boolean) {
