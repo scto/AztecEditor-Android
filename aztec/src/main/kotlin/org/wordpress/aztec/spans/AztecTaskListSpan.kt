@@ -30,6 +30,7 @@ import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.setTaskList
+import java.lang.ref.WeakReference
 
 fun createTaskListSpan(
         nestingLevel: Int,
@@ -61,11 +62,12 @@ class AztecTaskListSpanAligned(
 open class AztecTaskListSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes(),
-        val context: Context,
+        context: Context,
         var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0),
         var onRefresh: ((AztecTaskListSpan) -> Unit)? = null
 ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
     private var toggled: Boolean = false
+        private var contextRef: WeakReference<Context> = WeakReference(context)
     override val TAG = "ul"
 
     override val startTag: String
@@ -82,7 +84,7 @@ open class AztecTaskListSpan(
                                    top: Int, baseline: Int, bottom: Int,
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, l: Layout) {
-        if (!first) return
+        if (!first || contextRef.get() == null) return
 
         val spanStart = (text as Spanned).getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
@@ -99,12 +101,12 @@ open class AztecTaskListSpan(
         val drawableHeight = (0.8 * (p.fontMetrics.bottom - p.fontMetrics.top))
         // Make sure the marker is correctly aligned on RTL languages
         val markerStartPosition: Float = x + (listStyle.indicatorMargin * dir) * 1f
-        val d: Drawable = context.resources.getDrawable(R.drawable.ic_checkbox, null)
+        val d: Drawable? = contextRef.get()?.resources?.getDrawable(R.drawable.ic_checkbox, null)
         val leftBound = markerStartPosition.toInt()
         if (isChecked(text, lineIndex)) {
-            d.state = intArrayOf(android.R.attr.state_checked)
+            d?.state = intArrayOf(android.R.attr.state_checked)
         } else {
-            d.state = intArrayOf()
+            d?.state = intArrayOf()
         }
         val (startShift, endShift) = if (dir > 0) {
             0.8 to 0.2
@@ -112,11 +114,11 @@ open class AztecTaskListSpan(
             0.2 to 0.8
         }
 
-        d.setBounds((leftBound - drawableHeight * startShift).toInt().coerceAtLeast(0),
+        d?.setBounds((leftBound - drawableHeight * startShift).toInt().coerceAtLeast(0),
                 (baseline - drawableHeight * 0.8).toInt(),
                 (leftBound + drawableHeight * endShift).toInt(),
                 (baseline + drawableHeight * 0.2).toInt())
-        d.draw(c)
+        d?.draw(c)
 
         p.color = oldColor
         p.style = style

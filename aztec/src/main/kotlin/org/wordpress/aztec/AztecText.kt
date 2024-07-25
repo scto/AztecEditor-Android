@@ -955,6 +955,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             blockEditorDialog!!.dismiss()
         }
         EnhancedMovementMethod.setLinkTappedListener(null)
+        clearTaskListRefreshListeners()
     }
 
     // We are exposing this method in order to allow subclasses to set their own alpha value
@@ -1711,19 +1712,19 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val imageSpans = editable.getSpans(start, end, AztecImageSpan::class.java)
         imageSpans.forEach {
             it.onImageTappedListener = onImageTappedListener
-            it.onMediaDeletedListener = onMediaDeletedListener
+            it.setOnMediaDeletedListener(onMediaDeletedListener)
         }
 
         val videoSpans = editable.getSpans(start, end, AztecVideoSpan::class.java)
         videoSpans.forEach {
             it.onVideoTappedListener = onVideoTappedListener
-            it.onMediaDeletedListener = onMediaDeletedListener
+            it.setOnMediaDeletedListener(onMediaDeletedListener)
         }
 
         val audioSpans = editable.getSpans(start, end, AztecAudioSpan::class.java)
         audioSpans.forEach {
             it.onAudioTappedListener = onAudioTappedListener
-            it.onMediaDeletedListener = onMediaDeletedListener
+            it.setOnMediaDeletedListener(onMediaDeletedListener)
         }
 
         val unknownHtmlSpans = editable.getSpans(start, end, UnknownHtmlSpan::class.java)
@@ -1763,15 +1764,22 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         taskList.onRefresh = null
         this.editableText.removeSpan(taskList)
         val newSpan = if (taskList is AztecTaskListSpanAligned) {
-            AztecTaskListSpanAligned(taskList.nestingLevel, taskList.attributes, taskList.context, taskList.listStyle, taskList.align)
+            AztecTaskListSpanAligned(taskList.nestingLevel, taskList.attributes, context, taskList.listStyle, taskList.align)
         } else {
-            AztecTaskListSpan(taskList.nestingLevel, taskList.attributes, taskList.context, taskList.listStyle)
+            AztecTaskListSpan(taskList.nestingLevel, taskList.attributes, context, taskList.listStyle)
         }
         newSpan.onRefresh = {
             refreshTaskListSpan(it)
         }
         this.editableText.setSpan(newSpan, spanStart, spanEnd, flags)
         setSelection(selStart, selEnd)
+    }
+
+    private fun clearTaskListRefreshListeners() {
+        val taskLists = this.editableText.getSpans(0, this.editableText.length, AztecTaskListSpan::class.java)
+        taskLists.forEach { taskList ->
+            taskList.onRefresh = null
+        }
     }
 
     fun disableTextChangedListener() {
@@ -2217,7 +2225,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
      * Use this method to insert a custom AztecMediaSpan at the cursor position
      */
     fun insertMediaSpan(span: AztecMediaSpan) {
-        span.onMediaDeletedListener = onMediaDeletedListener
+        span.setOnMediaDeletedListener(onMediaDeletedListener)
         lineBlockFormatter.insertMediaSpan(shouldAddMediaInline, span)
     }
 
@@ -2323,7 +2331,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
             text.removeSpan(clickableSpan)
             text.removeSpan(mediaSpan)
-            aztecMediaSpan.onMediaDeletedListener = onMediaDeletedListener
+            aztecMediaSpan.setOnMediaDeletedListener(onMediaDeletedListener)
             lineBlockFormatter.insertMediaSpanOverCurrentChar(aztecMediaSpan, start)
             contentChangeWatcher.notifyContentChanged()
         }

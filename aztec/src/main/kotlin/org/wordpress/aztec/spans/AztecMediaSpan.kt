@@ -11,11 +11,17 @@ import java.lang.ref.WeakReference
 import java.util.ArrayList
 
 abstract class AztecMediaSpan(drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
-                              var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
+                              onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
                               editor: AztecText? = null) : AztecDynamicImageSpan(drawable), IAztecAttributedSpan {
     abstract val TAG: String
 
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
+
+    private var onMediaDeletedListenerRef = WeakReference(onMediaDeletedListener)
+
+    fun setOnMediaDeletedListener(listener: AztecText.OnMediaDeletedListener?) {
+        onMediaDeletedListenerRef = WeakReference(listener)
+    }
 
     init {
         textView = editor?.let { WeakReference(editor) }
@@ -96,9 +102,9 @@ abstract class AztecMediaSpan(drawable: Drawable?, override var attributes: Azte
     abstract fun onClick()
 
     fun onMediaDeleted() {
-        onMediaDeletedListener?.onMediaDeleted(attributes)
+        onMediaDeletedListenerRef.get()?.onMediaDeleted(attributes)
     }
     fun beforeMediaDeleted() {
-        onMediaDeletedListener?.beforeMediaDeleted(attributes)
+        onMediaDeletedListenerRef.get()?.beforeMediaDeleted(attributes)
     }
 }
