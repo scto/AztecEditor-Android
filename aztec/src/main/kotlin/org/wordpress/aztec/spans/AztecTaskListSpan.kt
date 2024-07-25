@@ -101,12 +101,12 @@ open class AztecTaskListSpan(
         val drawableHeight = (0.8 * (p.fontMetrics.bottom - p.fontMetrics.top))
         // Make sure the marker is correctly aligned on RTL languages
         val markerStartPosition: Float = x + (listStyle.indicatorMargin * dir) * 1f
-        val d: Drawable = contextRef.get()!!.resources.getDrawable(R.drawable.ic_checkbox, null)
+        val d: Drawable? = contextRef.get()?.resources?.getDrawable(R.drawable.ic_checkbox, null)
         val leftBound = markerStartPosition.toInt()
         if (isChecked(text, lineIndex)) {
-            d.state = intArrayOf(android.R.attr.state_checked)
+            d?.state = intArrayOf(android.R.attr.state_checked)
         } else {
-            d.state = intArrayOf()
+            d?.state = intArrayOf()
         }
         val (startShift, endShift) = if (dir > 0) {
             0.8 to 0.2
@@ -114,11 +114,11 @@ open class AztecTaskListSpan(
             0.2 to 0.8
         }
 
-        d.setBounds((leftBound - drawableHeight * startShift).toInt().coerceAtLeast(0),
+        d?.setBounds((leftBound - drawableHeight * startShift).toInt().coerceAtLeast(0),
                 (baseline - drawableHeight * 0.8).toInt(),
                 (leftBound + drawableHeight * endShift).toInt(),
                 (baseline + drawableHeight * 0.2).toInt())
-        d.draw(c)
+        d?.draw(c)
 
         p.color = oldColor
         p.style = style
