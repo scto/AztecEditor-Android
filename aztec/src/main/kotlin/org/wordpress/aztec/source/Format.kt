@@ -5,6 +5,7 @@ import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.EndOfParagraphMarker
@@ -30,9 +31,9 @@ object Format {
         CleaningUtils.cleanNestedBoldTags(doc)
         if (isCalypsoFormat) {
             // remove empty span tags
-            doc.select("*")
-                    .filter { !it.hasText() && it.tagName() == "span" && it.childNodes().size == 0 }
-                    .forEach { it.remove() }
+            doc.select("*").filter { element: Element ->
+                !element.hasText() && element.tagName() == "span" && element.childNodes().size == 0
+            }.forEach { it.remove() }
 
             html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
 

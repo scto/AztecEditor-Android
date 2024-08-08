@@ -79,7 +79,7 @@ ext {
     picassoVersion = '2.5.2'
     robolectricVersion = '4.11'
     jUnitVersion = '4.12'
-    jSoupVersion = '1.11.3'
+    jSoupVersion = '1.15.3'
     wordpressUtilsVersion = '3.5.0'
     espressoVersion = '3.0.1'
 
