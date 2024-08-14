@@ -57,3 +57,13 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
 }
+
+dependencyAnalysis {
+    issues {
+        onUnusedDependencies {
+            // These dependency are not needed but kept to preserve the module's default configuration.
+            exclude(":media-placeholders")
+            exclude(":picasso-loader")
+        }
+    }
+}
