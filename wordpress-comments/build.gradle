@@ -38,11 +38,20 @@ android {
 dependencies {
     implementation aztecProjectDependency
 
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation "org.wordpress:utils:$wordpressUtilsVersion"
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
+}
+
+dependencyAnalysis {
+    issues {
+        onUnusedDependencies {
+            // This dependency is actually needed otherwise the build fails in multiple places.
+            exclude("androidx.appcompat:appcompat")
+        }
+    }
 }
 
 project.afterEvaluate {
