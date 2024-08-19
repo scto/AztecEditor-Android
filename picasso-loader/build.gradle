@@ -25,10 +25,19 @@ android {
 dependencies {
     implementation aztecProjectDependency
 
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.collection:collection:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
 
     implementation "com.squareup.picasso:picasso:$picassoVersion"
+}
+
+dependencyAnalysis {
+    issues {
+        onUnusedDependencies {
+            // This dependency is actually needed otherwise the build fails on 'aztec.tag'.
+            exclude("androidx.appcompat:appcompat")
+        }
+    }
 }
 
 project.afterEvaluate {

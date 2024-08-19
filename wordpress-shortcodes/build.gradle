@@ -43,6 +43,15 @@ dependencies {
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
 }
 
+dependencyAnalysis {
+    issues {
+        onUnusedDependencies {
+            // This dependency is actually needed otherwise the build fails in multiple places.
+            exclude("androidx.appcompat:appcompat")
+        }
+    }
+}
+
 project.afterEvaluate {
     publishing {
         publications {
