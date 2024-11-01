@@ -78,7 +78,7 @@ open class Aztec private constructor(
         }
 
         @JvmStatic
-        fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
+        fun with(visualEditor: AztecText, toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(visualEditor, null, toolbar, toolbarClickListener)
         }
     }

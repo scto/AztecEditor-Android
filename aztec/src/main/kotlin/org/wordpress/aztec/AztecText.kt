@@ -429,6 +429,24 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return super.getText()!!
     }
 
+    /**
+     * The getText method returns mutable version of the content. This means that it can change
+     * when being worked on. Call this method when you want your Editable to be immutable.
+     */
+    fun getTextCopy(): Editable {
+        val copy = SpannableStringBuilder(text.toString())
+
+        val spans: Array<Any> = text.getSpans(0, text.length, Any::class.java)
+
+        for (span in spans) {
+            val spanStart = text.getSpanStart(span)
+            val spanEnd = text.getSpanEnd(span)
+            val flags = text.getSpanFlags(span)
+            copy.setSpan(span, spanStart, spanEnd, flags)
+        }
+        return copy
+    }
+
     @SuppressLint("ResourceType")
     private fun init(attrs: AttributeSet?) {
         disableTextChangedListener()
@@ -1631,6 +1649,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return toHtml(text, withCursorTag)
     }
 
+    suspend fun toHtmlAsync(withCursorTag: Boolean = false): String {
+        return toHtmlAsync(getTextCopy(), withCursorTag)
+    }
+
     // general function accepts any Spannable and converts it to regular or "calypso" html
     // depending on the mode
     fun toHtml(content: Spannable, withCursorTag: Boolean = false): String {
@@ -1643,6 +1665,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         } else {
             return html
         }
+    }
+
+    suspend fun toHtmlAsync(content: Editable, withCursorTag: Boolean = false): String {
+        return toPlainHtmlAsync(content, withCursorTag)
     }
 
     // platform agnostic HTML
@@ -1660,6 +1686,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 }
             }
         } else {
+            parseHtml(content, withCursorTag)
+        }
+    }
+
+    suspend fun toPlainHtmlAsync(content: Editable, withCursorTag: Boolean = false): String {
+        return withContext(Dispatchers.Default) {
             parseHtml(content, withCursorTag)
         }
     }

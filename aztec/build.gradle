@@ -59,10 +59,11 @@ dependencies {
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
-    testImplementation 'androidx.test:core:1.4.0'
+    testImplementation 'androidx.test:core:1.6.1'
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
 
     implementation 'org.apache.commons:commons-lang3:3.8.1'
 

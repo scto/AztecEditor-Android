@@ -73,12 +73,12 @@ ext {
 ext {
     // mixed
     gradlePluginVersion = '3.3.1'
-    kotlinCoroutinesVersion = '1.6.4'
+    kotlinCoroutinesVersion = '1.8.1'
     tagSoupVersion = '1.2.1'
     glideVersion = '4.10.0'
     picassoVersion = '2.5.2'
-    robolectricVersion = '4.11'
-    jUnitVersion = '4.12'
+    robolectricVersion = '4.13'
+    jUnitVersion = '4.13.2'
     jSoupVersion = '1.15.3'
     wordpressUtilsVersion = '3.5.0'
     espressoVersion = '3.0.1'
