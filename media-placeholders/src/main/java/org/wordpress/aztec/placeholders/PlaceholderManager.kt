@@ -496,24 +496,28 @@ class PlaceholderManager(
                 return
             }
             aztecText.viewTreeObserver.removeOnGlobalLayoutListener(this)
-            val spans = aztecText.editableText.getSpans(
-                    0,
-                    aztecText.editableText.length,
-                    AztecPlaceholderSpan::class.java
-            )
+            job = redrawViews()
+        }
+    }
 
-            if (spans == null || spans.isEmpty()) {
-                return
-            }
-            job = launch {
-                clearAllViews()
-                spans.forEach {
-                    val type = it.attributes.getValue(TYPE_ATTRIBUTE)
-                    val adapter = adapters[type] ?: return@forEach
-                    it.drawable = buildPlaceholderDrawable(adapter, it.attributes)
-                    aztecText.refreshText(false)
-                    insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
-                }
+    fun redrawViews(): Job? {
+        val spans = aztecText.editableText.getSpans(
+            0,
+            aztecText.editableText.length,
+            AztecPlaceholderSpan::class.java
+        )
+
+        if (spans == null || spans.isEmpty()) {
+            return null
+        }
+        return launch {
+            clearAllViews()
+            spans.forEach {
+                val type = it.attributes.getValue(TYPE_ATTRIBUTE)
+                val adapter = adapters[type] ?: return@forEach
+                it.drawable = buildPlaceholderDrawable(adapter, it.attributes)
+                aztecText.refreshText(false)
+                insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
             }
         }
     }
