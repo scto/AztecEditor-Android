@@ -1238,6 +1238,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         if (length() != 0) {
+            if((length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)){
+                return
+            }
+
             // if the text end has the marker, let's make sure the cursor never includes it or surpasses it
             if ((selStart == length() || selEnd == length()) && text[length() - 1] == Constants.END_OF_BUFFER_MARKER) {
                 var start = selStart
@@ -1970,14 +1974,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     Toast.makeText(context, context.getString(R.string.samsung_disabled_custom_clipboard, Build.VERSION.RELEASE), Toast.LENGTH_LONG).show()
                 } else {
                     return super.onTextContextMenuItem(id)
-                }
-            }
-            android.R.id.selectAll -> {
-                return if (text.toString() == Constants.END_OF_BUFFER_MARKER.toString()) {
-                    deleteInlineStyleFromTheBeginning()
-                    return true
-                } else {
-                    super.onTextContextMenuItem(id)
                 }
             }
             else -> return super.onTextContextMenuItem(id)
