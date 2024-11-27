@@ -1240,6 +1240,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (length() != 0) {
             // do not set selection when we try to select end of buffer marker in empty editor
             if (selStart == 0 && selEnd == 1 && (length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)) {
+                deleteInlineStyleFromTheBeginning()
                 return
             }
 
