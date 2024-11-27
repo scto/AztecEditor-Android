@@ -1238,7 +1238,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         if (length() != 0) {
-            if((length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)){
+            if ((length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)) {
                 return
             }
 
