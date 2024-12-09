@@ -16,7 +16,7 @@ import org.wordpress.aztec.placeholders.PlaceholderManager.PlaceholderAdapter.Pr
  */
 class ImageWithCaptionAdapter(
         override val type: String = "image_with_caption"
-) : PlaceholderManager.PlaceholderAdapter {
+) : ViewPlaceholderAdapter {
     private val media = mutableMapOf<String, ImageWithCaptionObject>()
     suspend override fun getHeight(attrs: AztecAttributes): Proportion {
         return Proportion.Ratio(0.5f)
