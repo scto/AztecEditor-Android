@@ -5,7 +5,6 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.compose.foundation.layout.Box
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
@@ -94,13 +92,7 @@ class ComposePlaceholderManager(
 
         val values = composeViewState.collectAsState().value.values.filter { it.visible }.sortedBy { it.topMargin }
 
-        LaunchedEffect(values.size) {
-            Log.d("vojta", "Drawing placeholders: ${values.size}")
-        }
         values.forEach { composeView ->
-            LaunchedEffect(composeView.uuid) {
-                Log.d("vojta", "Item: ${composeView.uuid}")
-            }
             Box(
                 Modifier
                     .zIndex(9f)
@@ -360,7 +352,6 @@ class ComposePlaceholderManager(
      * Call this method to reload all the placeholders
      */
     suspend fun reloadAllPlaceholders() {
-//        Log.d("vojta", "Reloading placeholders")
         val tempPositionToId = positionToId.toList()
         tempPositionToId.forEach { placeholder ->
             val isValid = positionToIdMutex.withLock {
@@ -428,8 +419,6 @@ class ComposePlaceholderManager(
         val padding = 10
         val newLeftPadding = parentTextViewRect.left + padding + aztecText.paddingStart
         val newTopPadding = parentTextViewRect.top + padding
-//        Log.d("vojta", "Current top padding: ${box?.topMargin}")
-//        Log.d("vojta", "New top padding: ${newTopPadding}")
         box?.let { existingView ->
             val widthSame = existingView.width == newWidth
             val heightSame = existingView.height == newHeight
