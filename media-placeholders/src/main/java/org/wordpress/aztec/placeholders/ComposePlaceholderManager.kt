@@ -32,6 +32,10 @@ import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.Html
+import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.DEFAULT_HTML_TAG
+import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.EDITOR_INNER_PADDING
+import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.TYPE_ATTRIBUTE
+import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.UUID_ATTRIBUTE
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
@@ -63,7 +67,6 @@ class ComposePlaceholderManager(
     IHtmlPreprocessor {
     private val adapters = mutableMapOf<String, ComposePlaceholderAdapter>()
     private val positionToIdMutex = Mutex()
-    private val positionToId = mutableSetOf<Placeholder>()
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -111,8 +114,6 @@ class ComposePlaceholderManager(
                     adapters[composeView.adapterKey]?.Placeholder(
                         composeView.uuid,
                         composeView.attrs,
-                        composeView.width,
-                        composeView.height,
                     )
                 }
             }
@@ -120,14 +121,7 @@ class ComposePlaceholderManager(
     }
 
     fun onDestroy() {
-        positionToId.forEach {
-            composeViewState.value = composeViewState.value.let { state ->
-                val mutableState = state.toMutableMap()
-                mutableState.remove(it.uuid)
-                mutableState
-            }
-        }
-        positionToId.clear()
+        composeViewState.value = emptyMap()
         aztecText.contentChangeWatcher.unregisterObserver(this)
         adapters.values.forEach { it.onDestroy() }
         adapters.clear()
@@ -352,13 +346,13 @@ class ComposePlaceholderManager(
      * Call this method to reload all the placeholders
      */
     suspend fun reloadAllPlaceholders() {
-        val tempPositionToId = positionToId.toList()
+        val tempPositionToId = composeViewState.value
         tempPositionToId.forEach { placeholder ->
             val isValid = positionToIdMutex.withLock {
-                positionToId.contains(placeholder)
+                composeViewState.value.containsKey(placeholder.key)
             }
             if (isValid) {
-                insertContentOverSpanWithId(placeholder.uuid)
+                insertContentOverSpanWithId(placeholder.value.uuid)
             }
         }
     }
@@ -427,11 +421,6 @@ class ComposePlaceholderManager(
             if (widthSame && heightSame && topMarginSame && leftMarginSame) {
                 return
             }
-            positionToIdMutex.withLock {
-                positionToId.removeAll {
-                    it.uuid == uuid
-                }
-            }
         }
 
         composeViewState.value = composeViewState.value.let { state ->
@@ -447,10 +436,6 @@ class ComposePlaceholderManager(
                 attrs = attrs
             )
             mutableState
-        }
-
-        positionToIdMutex.withLock {
-            positionToId.add(Placeholder(targetPosition, uuid))
         }
     }
 
@@ -490,11 +475,6 @@ class ComposePlaceholderManager(
             val uuid = attrs.getValue(UUID_ATTRIBUTE)
             val adapter = adapters[attrs.getValue(TYPE_ATTRIBUTE)]
             adapter?.onPlaceholderDeleted(uuid)
-            launch {
-                positionToIdMutex.withLock {
-                    positionToId.removeAll { it.uuid == uuid }
-                }
-            }
             composeViewState.value = composeViewState.value.let { state ->
                 val mutableState = state.toMutableMap()
                 mutableState.remove(uuid)
@@ -614,42 +594,20 @@ class ComposePlaceholderManager(
 
     private suspend fun clearAllViews() {
         positionToIdMutex.withLock {
-            for (placeholder in positionToId) {
-                composeViewState.value = composeViewState.value.let { state ->
-                    val mutableState = state.toMutableMap()
-                    mutableState.remove(placeholder.uuid)
-                    mutableState
-                }
-            }
-            positionToId.clear()
+            composeViewState.value = emptyMap()
         }
     }
 
     override fun onVisibility(visibility: Int) {
         launch {
             positionToIdMutex.withLock {
-                for (placeholder in positionToId) {
-                    composeViewState.value = composeViewState.value.let { state ->
-                        val mutableState = state.toMutableMap()
-                        mutableState[placeholder.uuid]?.copy(
-                            visible = View.VISIBLE == visibility
-                        )?.let {
-                            mutableState[placeholder.uuid] = it
-                        }
-                        mutableState
-                    }
+                composeViewState.value = composeViewState.value.let { state ->
+                    state.mapValues { (_, value) -> value.copy(
+                        visible = View.VISIBLE == visibility
+                    ) }
                 }
             }
         }
-    }
-
-    data class Placeholder(val elementPosition: Int, val uuid: String)
-
-    companion object {
-        private const val DEFAULT_HTML_TAG = "placeholder"
-        private const val UUID_ATTRIBUTE = "uuid"
-        private const val TYPE_ATTRIBUTE = "type"
-        private const val EDITOR_INNER_PADDING = 20
     }
 
     override fun beforeHtmlProcessed(source: String): String {

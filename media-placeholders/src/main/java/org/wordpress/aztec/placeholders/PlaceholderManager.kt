@@ -1,9 +1,7 @@
 package org.wordpress.aztec.placeholders
 
-import android.content.Context
 import android.view.MotionEvent
 import android.view.View
-import androidx.compose.runtime.Composable
 import org.wordpress.aztec.AztecAttributes
 import org.xml.sax.Attributes
 import kotlin.math.min
@@ -21,6 +19,15 @@ interface PlaceholderManager {
             placeAtStart: Boolean
         ) -> Map<String, String>
     )
+
+    data class Placeholder(val elementPosition: Int, val uuid: String)
+
+    companion object {
+        internal const val DEFAULT_HTML_TAG = "placeholder"
+        internal const val UUID_ATTRIBUTE = "uuid"
+        internal const val TYPE_ATTRIBUTE = "type"
+        internal const val EDITOR_INNER_PADDING = 20
+    }
     /**
      * A adapter for a custom view drawn over the placeholder in the Aztec text.
      */

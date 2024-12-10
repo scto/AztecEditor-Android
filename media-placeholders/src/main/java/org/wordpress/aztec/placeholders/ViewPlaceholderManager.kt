@@ -23,6 +23,11 @@ import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.Html
+import org.wordpress.aztec.placeholders.PlaceholderManager.*
+import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.DEFAULT_HTML_TAG
+import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.EDITOR_INNER_PADDING
+import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.TYPE_ATTRIBUTE
+import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.UUID_ATTRIBUTE
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
@@ -540,16 +545,6 @@ class ViewPlaceholderManager(
                 }
             }
         }
-    }
-
-    data class Placeholder(val elementPosition: Int, val uuid: String)
-
-    companion object {
-        private const val TAG = "PlaceholderManager"
-        private const val DEFAULT_HTML_TAG = "placeholder"
-        private const val UUID_ATTRIBUTE = "uuid"
-        private const val TYPE_ATTRIBUTE = "type"
-        private const val EDITOR_INNER_PADDING = 20
     }
 
     override fun beforeHtmlProcessed(source: String): String {
