@@ -23,7 +23,6 @@ import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.Html
-import org.wordpress.aztec.placeholders.PlaceholderManager.*
 import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.DEFAULT_HTML_TAG
 import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.EDITOR_INNER_PADDING
 import org.wordpress.aztec.placeholders.PlaceholderManager.Companion.TYPE_ATTRIBUTE
@@ -60,7 +59,7 @@ class ViewPlaceholderManager(
     IHtmlPreprocessor {
     private val adapters = mutableMapOf<String, ViewPlaceholderAdapter>()
     private val positionToIdMutex = Mutex()
-    private val positionToId = mutableSetOf<Placeholder>()
+    private val positionToId = mutableSetOf<PlaceholderManager.Placeholder>()
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -97,7 +96,7 @@ class ViewPlaceholderManager(
      * @param type placeholder type
      * @param attributes other attributes passed to the view. For example a `src` for an image.
      */
-    override suspend fun insertItem(type: String, vararg attributes: Pair<String, String>) {
+    suspend override fun insertItem(type: String, vararg attributes: Pair<String, String>) {
         val adapter = adapters[type]
                 ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
         val attrs = getAttributesForMedia(type, attributes)
@@ -114,7 +113,7 @@ class ViewPlaceholderManager(
      * @param shouldMergeItem this method should return true when the previous type is compatible and should be updated
      * @param updateItem function to update current parameters with new params
      */
-    override suspend fun insertOrUpdateItem(
+    suspend override fun insertOrUpdateItem(
             type: String,
             shouldMergeItem: (currentItemType: String) -> Boolean,
             updateItem: (
@@ -187,7 +186,7 @@ class ViewPlaceholderManager(
      * @param shouldUpdateItem This function should return true if the span can be updated, false if it should be removed
      * @param updateItem Function that updates the selected item
      */
-    override suspend fun removeOrUpdate(uuid: String, shouldUpdateItem: (Attributes) -> Boolean, updateItem: (currentAttributes: Map<String, String>) -> Map<String, String>): Boolean {
+    suspend override fun removeOrUpdate(uuid: String, shouldUpdateItem: (Attributes) -> Boolean, updateItem: (currentAttributes: Map<String, String>) -> Map<String, String>): Boolean {
         val currentItem = aztecText.editableText.getSpans(0, aztecText.length(), AztecPlaceholderSpan::class.java).find {
             it.attributes.getValue(UUID_ATTRIBUTE) == uuid
         } ?: return false
@@ -370,7 +369,7 @@ class ViewPlaceholderManager(
         }
 
         positionToIdMutex.withLock {
-            positionToId.add(Placeholder(targetPosition, uuid))
+            positionToId.add(PlaceholderManager.Placeholder(targetPosition, uuid))
         }
         if (box.parent == null) {
             container.addView(box)
