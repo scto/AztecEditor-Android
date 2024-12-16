@@ -616,4 +616,10 @@ class ComposePlaceholderManager(
         }
         return source
     }
+
+    fun getViewInPosition(x: Float, y: Float): ComposeView? {
+        return composeViewState.value.values.firstOrNull {
+            (it.topMargin < y && (it.topMargin + it.height) > y) && (it.leftMargin < x && (it.leftMargin + it.width) > x)
+        }
+    }
 }
