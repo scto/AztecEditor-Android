@@ -186,7 +186,7 @@ class ViewPlaceholderManager(
      * @param shouldUpdateItem This function should return true if the span can be updated, false if it should be removed
      * @param updateItem Function that updates the selected item
      */
-    suspend override fun removeOrUpdate(uuid: String, shouldUpdateItem: (Attributes) -> Boolean, updateItem: (currentAttributes: Map<String, String>) -> Map<String, String>): Boolean {
+   override suspend fun removeOrUpdate(uuid: String, shouldUpdateItem: (Attributes) -> Boolean, updateItem: (currentAttributes: Map<String, String>) -> Map<String, String>): Boolean {
         val currentItem = aztecText.editableText.getSpans(0, aztecText.length(), AztecPlaceholderSpan::class.java).find {
             it.attributes.getValue(UUID_ATTRIBUTE) == uuid
         } ?: return false
