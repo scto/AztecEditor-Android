@@ -703,7 +703,34 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return containingBoxBounds
     }
 
+    private fun getTaskListHandler(): TaskListClickHandler? {
+        return EnhancedMovementMethod.taskListClickHandler
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        var x = event.x.toInt()
+        var y = event.y.toInt()
+
+        x -= totalPaddingLeft
+        y -= totalPaddingTop
+
+        x += scrollX
+        y += scrollY
+
+        // Check if we're in the task list area
+        if (x + totalPaddingStart <= blockFormatter.listStyleLeadingMargin()) {
+            val line = layout.getLineForVertical(y)
+            val off = layout.getOffsetForHorizontal(line, x.toFloat())
+            if (getTaskListHandler()?.handleTaskListClick(
+                text,
+                off,
+                x,
+                totalPaddingStart
+            ) == true) {
+                return false
+            }
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                 && event.action == MotionEvent.ACTION_DOWN) {
             // we'll use these values in OnLongClickListener
@@ -1788,8 +1815,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun refreshTaskListSpan(taskList: AztecTaskListSpan) {
-        val selStart = selectionStart
-        val selEnd = selectionEnd
+//        val selStart = selectionStart
+//        val selEnd = selectionEnd
         val spanStart = this.editableText.getSpanStart(taskList)
         val spanEnd = this.editableText.getSpanEnd(taskList)
         val flags = this.editableText.getSpanFlags(taskList)
@@ -1804,7 +1831,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             refreshTaskListSpan(it)
         }
         this.editableText.setSpan(newSpan, spanStart, spanEnd, flags)
-        setSelection(selStart, selEnd)
+        //setSelection(selStart, selEnd)
     }
 
     private fun clearTaskListRefreshListeners() {
