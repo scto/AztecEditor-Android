@@ -144,4 +144,8 @@ open class AztecTaskListSpan(
     }
 
     override val textFormat: ITextFormat = AztecTextFormat.FORMAT_TASK_LIST
+
+    companion object {
+        const val PADDING_SPACE = 15
+    }
 }

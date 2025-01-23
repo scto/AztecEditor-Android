@@ -733,7 +733,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         y += scrollY
 
         // Check if we're in the task list area
-        if (isEnabled && x + totalPaddingStart <= (blockFormatter.listStyleLeadingMargin() + 10)) {
+        if (isEnabled && x + totalPaddingStart <= (blockFormatter.listStyleLeadingMargin() + AztecTaskListSpan.PADDING_SPACE)) {
             val line = layout.getLineForVertical(y)
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
             if (getTaskListHandler()?.handleTaskListClick(
