@@ -96,7 +96,7 @@ class ViewPlaceholderManager(
      * @param type placeholder type
      * @param attributes other attributes passed to the view. For example a `src` for an image.
      */
-    suspend override fun insertItem(type: String, vararg attributes: Pair<String, String>) {
+    override suspend fun insertItem(type: String, vararg attributes: Pair<String, String>) {
         val adapter = adapters[type]
                 ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
         val attrs = getAttributesForMedia(type, attributes)
