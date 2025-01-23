@@ -113,7 +113,7 @@ class ViewPlaceholderManager(
      * @param shouldMergeItem this method should return true when the previous type is compatible and should be updated
      * @param updateItem function to update current parameters with new params
      */
-    suspend override fun insertOrUpdateItem(
+    override suspend fun insertOrUpdateItem(
             type: String,
             shouldMergeItem: (currentItemType: String) -> Boolean,
             updateItem: (
