@@ -46,6 +46,7 @@ import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.DragEvent
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -254,6 +255,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
     private var onAztecKeyListener: OnAztecKeyListener? = null
     private var onVisibilityChangeListener: OnVisibilityChangeListener? = null
+    private var dragEventManager: DragEventManager? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
@@ -354,6 +356,19 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     interface OnMediaDeletedListener {
         fun onMediaDeleted(attrs: AztecAttributes)
         fun beforeMediaDeleted(attrs: AztecAttributes) {}
+    }
+
+    interface DragEventManager {
+        fun shouldProcessDragEvent(event: DragEvent?): Boolean
+    }
+
+    override fun onDragEvent(event: DragEvent?): Boolean {
+        val shouldProcessDragEvent = dragEventManager?.shouldProcessDragEvent(event)
+        if (shouldProcessDragEvent == true) {
+            return super.onDragEvent(event)
+        } else {
+            return false
+        }
     }
 
     /**
@@ -1234,6 +1249,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setOnVisibilityChangeListener(listener: OnVisibilityChangeListener) {
         this.onVisibilityChangeListener = listener
+    }
+
+    fun setDragEventManager(listener: DragEventManager) {
+        this.dragEventManager = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {

@@ -25,7 +25,7 @@ class PlaceholderTest {
     lateinit var menuListUnordered: MenuItem
     lateinit var sourceText: SourceViewEditText
     lateinit var toolbar: AztecToolbar
-    lateinit var placeholderManager: PlaceholderManager
+    lateinit var placeholderManager: ViewPlaceholderManager
 
     private val uuid1: String = "uuid1"
     private val uuid2: String = "uuid2"
@@ -40,7 +40,7 @@ class PlaceholderTest {
         editText = AztecText(activity)
         container.addView(editText, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
         var counter = 0
-        placeholderManager = PlaceholderManager(editText, container, generateUuid = {
+        placeholderManager = ViewPlaceholderManager(editText, container, generateUuid = {
             listOf(uuid1, uuid2)[counter++]
         })
         placeholderManager.registerAdapter(ImageWithCaptionAdapter())
