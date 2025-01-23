@@ -81,7 +81,7 @@ class BlockFormatter(editor: AztecText,
     }
 
     fun listStyleLeadingMargin(): Int {
-       return listStyle.leadingMargin()
+        return listStyle.leadingMargin()
     }
 
     fun isIndentAvailable(): Boolean {
