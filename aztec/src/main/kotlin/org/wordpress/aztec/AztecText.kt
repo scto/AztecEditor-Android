@@ -732,10 +732,16 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         x += scrollX
         y += scrollY
 
-        // Check if we're in the task list area
-        if (isEnabled && x + totalPaddingStart <= (blockFormatter.listStyleLeadingMargin() + AztecTaskListSpan.PADDING_SPACE)) {
+        // We check whether the user tap on a checkbox of a task list. The aztec text field should be enabled and we
+        // check whether the tap event was on the leading margin which is where the checkbox is located plus a padding
+        // space used to increase the target size for the tap event.
+        if (isEnabled &&
+            x + totalPaddingStart <= (blockFormatter.listStyleLeadingMargin() + AztecTaskListSpan.PADDING_SPACE)) {
             val line = layout.getLineForVertical(y)
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
+            // If the tap event was on the leading margin, we double check whether we are tapping on a task list item.
+            // If that is true, then we return false because we don't want to propagate the tap event to stop moving
+            // the cursor to the item tapped.
             if (getTaskListHandler()?.handleTaskListClick(
                 text,
                 off,

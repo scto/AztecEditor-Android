@@ -146,6 +146,7 @@ open class AztecTaskListSpan(
     override val textFormat: ITextFormat = AztecTextFormat.FORMAT_TASK_LIST
 
     companion object {
-        const val PADDING_SPACE = 15
+        // Extra padding added to the target tap area for checkboxes.
+        const val PADDING_SPACE = 20
     }
 }
