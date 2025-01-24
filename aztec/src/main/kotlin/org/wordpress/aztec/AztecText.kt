@@ -1834,8 +1834,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun refreshTaskListSpan(taskList: AztecTaskListSpan) {
-//        val selStart = selectionStart
-//        val selEnd = selectionEnd
+        val selStart = selectionStart
+        val selEnd = selectionEnd
         val spanStart = this.editableText.getSpanStart(taskList)
         val spanEnd = this.editableText.getSpanEnd(taskList)
         val flags = this.editableText.getSpanFlags(taskList)
@@ -1850,7 +1850,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             refreshTaskListSpan(it)
         }
         this.editableText.setSpan(newSpan, spanStart, spanEnd, flags)
-        //setSelection(selStart, selEnd)
+        setSelection(selStart, selEnd)
     }
 
     private fun clearTaskListRefreshListeners() {
