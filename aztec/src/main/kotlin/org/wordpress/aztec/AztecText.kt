@@ -748,6 +748,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 x,
                 totalPaddingStart
             ) == true) {
+                refreshText()
                 return false
             }
         }
