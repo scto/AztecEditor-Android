@@ -80,6 +80,10 @@ class BlockFormatter(editor: AztecText,
         indentFormatter.outdent()
     }
 
+    fun listStyleLeadingMargin(): Int {
+        return listStyle.leadingMargin()
+    }
+
     fun isIndentAvailable(): Boolean {
         if (listFormatter.isIndentAvailable()) return true
         return indentFormatter.isIndentAvailable()
