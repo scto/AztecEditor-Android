@@ -1,3 +1,5 @@
+@file:Suppress("ktlint")
+
 package org.wordpress.aztec.placeholders
 
 import android.graphics.Rect
@@ -101,7 +103,7 @@ class ComposePlaceholderManager(
                     .zIndex(9f)
                     .padding(
                         top = with(density) { composeView.topMargin.toDp() },
-                        start = with(density) { composeView.leftMargin.toDp() },
+                        start = with(density) { composeView.leftMargin.toDp() }
                     )
                     .width(
                         with(density) { composeView.width.toDp() }
@@ -113,7 +115,7 @@ class ComposePlaceholderManager(
                 key(composeView.uuid, composeView.width, composeView.height) {
                     adapters[composeView.adapterKey]?.Placeholder(
                         composeView.uuid,
-                        composeView.attrs,
+                        composeView.attrs
                     )
                 }
             }

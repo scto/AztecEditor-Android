@@ -10,8 +10,5 @@ interface ComposePlaceholderAdapter : PlaceholderManager.PlaceholderAdapter {
      * @param attrs aztec attributes of the view
      */
     @Composable
-    fun Placeholder(
-        placeholderUuid: String,
-        attrs: AztecAttributes,
-    )
+    fun Placeholder(placeholderUuid: String, attrs: AztecAttributes)
 }
