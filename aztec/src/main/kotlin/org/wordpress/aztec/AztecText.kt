@@ -748,7 +748,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 x,
                 totalPaddingStart
             ) == true) {
-                refreshText()
+                refreshText(stealEditorFocus = false)
                 return false
             }
         }

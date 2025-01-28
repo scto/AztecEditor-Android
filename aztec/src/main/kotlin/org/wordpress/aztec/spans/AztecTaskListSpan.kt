@@ -147,6 +147,6 @@ open class AztecTaskListSpan(
 
     companion object {
         // Extra padding added to the target tap area for checkboxes.
-        const val PADDING_SPACE = 20
+        const val PADDING_SPACE = 15
     }
 }
