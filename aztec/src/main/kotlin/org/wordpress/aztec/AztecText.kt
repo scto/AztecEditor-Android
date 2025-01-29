@@ -1574,13 +1574,22 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return cursorPosition
     }
 
+    open fun fromSpanned(spannedText: Spanned, isInit: Boolean = true) {
+        processSpannedContent(spannedText, isInit)
+    }
+
     open fun fromHtml(source: String, isInit: Boolean = true) {
-        val builder = SpannableStringBuilder()
         val parser = AztecParser(alignmentRendering, plugins)
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
-        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying(), shouldIgnoreWhitespace()))
+        val spanned = parser.fromHtml(cleanSource, context, shouldSkipTidying(), shouldIgnoreWhitespace())
+
+        processSpannedContent(spanned)
+    }
+
+    private fun processSpannedContent(spannedText: Spanned, isInit: Boolean = true) {
+        val builder = SpannableStringBuilder(spannedText)
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -1600,7 +1609,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         setSelection(cursorPosition)
 
         if (isInit) {
-            initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
+            initialEditorContentParsedSHA256 =
+                calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
         }
 
         loadImages()
