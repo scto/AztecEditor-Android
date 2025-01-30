@@ -72,6 +72,9 @@ ext {
 
 ext {
     // mixed
+    androidxComposeCompilerVersion = '1.5.14'
+    androidxComposeLibraryVersion = '1.7.5'
+    androidxComposeMaterialVersion = '1.3.1'
     gradlePluginVersion = '3.3.1'
     kotlinCoroutinesVersion = '1.8.1'
     tagSoupVersion = '1.2.1'
