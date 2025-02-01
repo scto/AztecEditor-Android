@@ -32,7 +32,10 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        
       - name: Give permission to executable
         run: chmod +x gradlew
 
