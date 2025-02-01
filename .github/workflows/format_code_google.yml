@@ -1,0 +1,60 @@
+name: Format Code with GoogleJavaFormat 
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # every 30 minutes
+  workflow_dispatch: # on button click
+  push:
+    branches: [ master ]
+
+jobs:
+
+  formattingKotlin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4 # v2 minimum required
+        
+      - name: "googlejavaformat"
+        uses: axel-op/googlejavaformat-action@v3
+        with:
+          files: "**/*.kt"
+          args: "--skip-sorting-imports --replace"
+          # Recommended if you use MacOS:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          
+#      - name: Print diffs
+#        run: git --no-pager diff --exit-code
+
+  formattingJava:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4 # v2 minimum required
+        
+      - name: "googlejavaformat"
+        uses: axel-op/googlejavaformat-action@v3
+        with:
+          files: "**/*.java"
+          args: "--skip-sorting-imports --replace"
+          # Recommended if you use MacOS:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          
+#      - name: Print diffs
+#        run: git --no-pager diff --exit-code
+  formattingGradle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4 # v2 minimum required
+        
+      - name: "googlejavaformat"
+        uses: axel-op/googlejavaformat-action@v3
+        with:
+          files: "**/*.*.kts"
+          args: "--skip-sorting-imports --replace"
+          # Recommended if you use MacOS:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          
+#      - name: Print diffs
+#        run: git --no-pager diff --exit-code
