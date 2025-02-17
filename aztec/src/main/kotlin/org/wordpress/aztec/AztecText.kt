@@ -721,7 +721,41 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return containingBoxBounds
     }
 
+    private fun getTaskListHandler(): TaskListClickHandler? {
+        return EnhancedMovementMethod.taskListClickHandler
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        var x = event.x.toInt()
+        var y = event.y.toInt()
+
+        x -= totalPaddingLeft
+        y -= totalPaddingTop
+
+        x += scrollX
+        y += scrollY
+
+        // We check whether the user tap on a checkbox of a task list. The aztec text field should be enabled and we
+        // check whether the tap event was on the leading margin which is where the checkbox is located plus a padding
+        // space used to increase the target size for the tap event.
+        if (isEnabled &&
+            x + totalPaddingStart <= (blockFormatter.listStyleLeadingMargin() + AztecTaskListSpan.PADDING_SPACE)) {
+            val line = layout.getLineForVertical(y)
+            val off = layout.getOffsetForHorizontal(line, x.toFloat())
+            // If the tap event was on the leading margin, we double check whether we are tapping on a task list item.
+            // If that is true, then we return false because we don't want to propagate the tap event to stop moving
+            // the cursor to the item tapped.
+            if (getTaskListHandler()?.handleTaskListClick(
+                text,
+                off,
+                x,
+                totalPaddingStart
+            ) == true) {
+                refreshText(stealEditorFocus = false)
+                return false
+            }
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                 && event.action == MotionEvent.ACTION_DOWN) {
             // we'll use these values in OnLongClickListener
@@ -1543,13 +1577,22 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return cursorPosition
     }
 
+    open fun fromSpanned(spannedText: Spanned, isInit: Boolean = true) {
+        processSpannedContent(spannedText, isInit)
+    }
+
     open fun fromHtml(source: String, isInit: Boolean = true) {
-        val builder = SpannableStringBuilder()
         val parser = AztecParser(alignmentRendering, plugins)
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
-        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying(), shouldIgnoreWhitespace()))
+        val spanned = parser.fromHtml(cleanSource, context, shouldSkipTidying(), shouldIgnoreWhitespace())
+
+        processSpannedContent(spanned)
+    }
+
+    private fun processSpannedContent(spannedText: Spanned, isInit: Boolean = true) {
+        val builder = SpannableStringBuilder(spannedText)
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -1569,7 +1612,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         setSelection(cursorPosition)
 
         if (isInit) {
-            initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
+            initialEditorContentParsedSHA256 =
+                calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
         }
 
         loadImages()
