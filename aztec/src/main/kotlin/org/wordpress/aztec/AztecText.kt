@@ -450,14 +450,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
      */
     fun getTextCopy(): Editable {
         val copy = SpannableStringBuilder(text.toString())
-
         val spans: Array<Any> = text.getSpans(0, text.length, Any::class.java)
 
         for (span in spans) {
             val spanStart = text.getSpanStart(span)
             val spanEnd = text.getSpanEnd(span)
-            val flags = text.getSpanFlags(span)
-            copy.setSpan(span, spanStart, spanEnd, flags)
+
+            // Only set the span if both start and end positions are valid
+            if (spanStart >= 0 && spanEnd >= 0) {
+                val flags = text.getSpanFlags(span)
+                copy.setSpan(span, spanStart, spanEnd, flags)
+            }
         }
         return copy
     }
