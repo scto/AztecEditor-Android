@@ -5,6 +5,7 @@ import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 
 class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImpl(attributes) {
+    @Synchronized
     fun setValue(key: String, value: String) {
         val index = getIndex(key)
 
@@ -22,6 +23,7 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
         }
     }
 
+    @Synchronized
     private fun logInternalState() {
         AppLog.e(AppLog.T.EDITOR, "Dumping internal state:")
         AppLog.e(AppLog.T.EDITOR, "length = $length")
@@ -34,10 +36,12 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
         }
     }
 
+    @Synchronized
     fun isEmpty(): Boolean {
         return length == 0
     }
 
+    @Synchronized
     fun removeAttribute(key: String) {
         if (hasAttribute(key)) {
             val index = getIndex(key)
@@ -53,10 +57,12 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
         }
     }
 
+    @Synchronized
     fun hasAttribute(key: String): Boolean {
         return getValue(key) != null
     }
 
+    @Synchronized
     override fun toString(): String {
         val sb = StringBuilder()
         try {
