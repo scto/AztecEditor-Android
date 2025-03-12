@@ -3,6 +3,8 @@ package org.wordpress.aztec.placeholders
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
@@ -33,6 +35,7 @@ import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.xml.sax.Attributes
 import java.lang.ref.WeakReference
 import java.util.UUID
+import java.util.concurrent.CountDownLatch
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -547,9 +550,20 @@ class ViewPlaceholderManager(
     }
 
     override fun beforeHtmlProcessed(source: String): String {
-        runBlocking {
-            clearAllViews()
+        // If on main thread, execute directly
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            runBlocking { clearAllViews() }
+            return source
         }
+
+        // Otherwise, post to main thread and wait
+        val latch = CountDownLatch(1)
+        Handler(Looper.getMainLooper()).post {
+            runBlocking { clearAllViews() }
+            latch.countDown()
+        }
+        latch.await()
+
         return source
     }
 }
