@@ -47,57 +47,82 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
                 return true
             }
 
-            // get the character's position. This may be the left or the right edge of the character so, find the
-            //  other edge by inspecting nearby characters (if they exist)
-            val charX = layout.getPrimaryHorizontal(off)
-            val charPrevX = if (off > 0) layout.getPrimaryHorizontal(off - 1) else charX
-            val charNextX = if (off < text.length) layout.getPrimaryHorizontal(off + 1) else charX
-
-            val lineRect = Rect()
-            layout.getLineBounds(line, lineRect)
-
-            val clickedWithinLineHeight = y >= lineRect.top && y <= lineRect.bottom
-            val clickedOnSpanToTheLeftOfCursor = x.toFloat() in charPrevX..charX
-            val clickedOnSpanToTheRightOfCursor = x.toFloat() in charX..charNextX
-
-            val clickedOnSpan = clickedWithinLineHeight &&
-                    (clickedOnSpanToTheLeftOfCursor || clickedOnSpanToTheRightOfCursor)
-
-            val clickedSpanBordersAnotherOne = (text.getSpans(off, off, ClickableSpan::class.java).size == 1 &&
-                    text.getSpans(off + 1, off + 1, ClickableSpan::class.java).isNotEmpty())
-
-            val isClickedSpanAmbiguous = text.getSpans(off, off, ClickableSpan::class.java).size > 1
-
-            val failedToPinpointClickedSpan = (isClickedSpanAmbiguous || clickedSpanBordersAnotherOne)
-                    && !clickedOnSpanToTheLeftOfCursor && !clickedOnSpanToTheRightOfCursor
-
-            var link: ClickableSpan? = null
-
-            if (clickedOnSpan) {
-                if (isClickedSpanAmbiguous) {
-                    if (clickedOnSpanToTheLeftOfCursor) {
-                        link = text.getSpans(off, off, ClickableSpan::class.java)[0]
-                    } else if (clickedOnSpanToTheRightOfCursor) {
-                        link = text.getSpans(off, off, ClickableSpan::class.java)[1]
-                    }
-                } else {
-                    link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull()
-                }
-            } else if (failedToPinpointClickedSpan) {
-                link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull { text.getSpanStart(it) == off }
-            }
-
-            if (link != null) {
-                if (link is AztecMediaClickableSpan || link is UnknownClickableSpan) {
-                    link.onClick(widget)
-                    return true
-                } else if (link is AztecURLSpan && isLinkTapEnabled) {
-                    linkTappedListenerRef.get()?.onLinkTapped(widget, link.url) ?: link.onClick(widget)
-                    return true
-                }
+            // If we find that the touch event was on a link, then, we handle it and return immediately.
+            if (handleLinkTouchEvent(widget = widget, text = text, event = event).handled) {
+                return true
             }
         }
 
         return super.onTouchEvent(widget, text, event)
     }
+
+    fun handleLinkTouchEvent(widget: TextView, text: Spannable, event: MotionEvent): LinkTouchEventResult {
+        var x = event.x.toInt()
+        var y = event.y.toInt()
+
+        x -= widget.totalPaddingLeft
+        y -= widget.totalPaddingTop
+
+        x += widget.scrollX
+        y += widget.scrollY
+
+        val layout = widget.layout
+        val line = layout.getLineForVertical(y)
+        val off = layout.getOffsetForHorizontal(line, x.toFloat())
+
+        // get the character's position. This may be the left or the right edge of the character so, find the
+        //  other edge by inspecting nearby characters (if they exist)
+        val charX = layout.getPrimaryHorizontal(off)
+        val charPrevX = if (off > 0) layout.getPrimaryHorizontal(off - 1) else charX
+        val charNextX = if (off < text.length) layout.getPrimaryHorizontal(off + 1) else charX
+
+        val lineRect = Rect()
+        layout.getLineBounds(line, lineRect)
+
+        val clickedWithinLineHeight = y >= lineRect.top && y <= lineRect.bottom
+        val clickedOnSpanToTheLeftOfCursor = x.toFloat() in charPrevX..charX
+        val clickedOnSpanToTheRightOfCursor = x.toFloat() in charX..charNextX
+
+        val clickedOnSpan = clickedWithinLineHeight &&
+                (clickedOnSpanToTheLeftOfCursor || clickedOnSpanToTheRightOfCursor)
+
+        val clickedSpanBordersAnotherOne = (text.getSpans(off, off, ClickableSpan::class.java).size == 1 &&
+                text.getSpans(off + 1, off + 1, ClickableSpan::class.java).isNotEmpty())
+
+        val isClickedSpanAmbiguous = text.getSpans(off, off, ClickableSpan::class.java).size > 1
+
+        val failedToPinpointClickedSpan = (isClickedSpanAmbiguous || clickedSpanBordersAnotherOne)
+                && !clickedOnSpanToTheLeftOfCursor && !clickedOnSpanToTheRightOfCursor
+
+        var link: ClickableSpan? = null
+
+        if (clickedOnSpan) {
+            link = if (isClickedSpanAmbiguous) {
+                if (clickedOnSpanToTheLeftOfCursor) {
+                    text.getSpans(off, off, ClickableSpan::class.java)[0]
+                } else {
+                    text.getSpans(off, off, ClickableSpan::class.java)[1]
+                }
+            } else {
+                text.getSpans(off, off, ClickableSpan::class.java).firstOrNull()
+            }
+        } else if (failedToPinpointClickedSpan) {
+            link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull { text.getSpanStart(it) == off }
+        }
+
+        if (link != null) {
+            if (link is AztecMediaClickableSpan || link is UnknownClickableSpan) {
+                link.onClick(widget)
+                return LinkTouchEventResult(true)
+            } else if (link is AztecURLSpan && isLinkTapEnabled) {
+                linkTappedListenerRef.get()?.onLinkTapped(widget, link.url) ?: link.onClick(widget)
+                return LinkTouchEventResult(true)
+            }
+        }
+
+        return LinkTouchEventResult(false)
+    }
 }
+
+@JvmInline
+value class LinkTouchEventResult(val handled: Boolean)
