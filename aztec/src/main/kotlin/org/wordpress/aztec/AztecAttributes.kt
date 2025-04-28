@@ -14,7 +14,10 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
                 addAttribute("", key, key, "string", value)
             } catch (e: ArrayIndexOutOfBoundsException) {
                 // https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
-                AppLog.e(AppLog.T.EDITOR, "Error adding attribute with name: $key and value: $value")
+                AppLog.e(
+                    AppLog.T.EDITOR,
+                    "Error adding attribute with name: $key and value: $value"
+                )
                 logInternalState()
                 throw e
             }
@@ -64,21 +67,35 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
 
     @Synchronized
     override fun toString(): String {
-        val sb = StringBuilder()
+        return toMap().map { (key, value) ->
+            "$key=\"$value\""
+        }.joinToString(" ")
+    }
+
+    override fun hashCode(): Int {
+        return toMap().hashCode()
+    }
+
+    private fun toMap(): Map<String, String> {
+        val map = mutableMapOf<String, String>()
         try {
-            for (i in 0..this.length - 1) {
-                sb.append(this.getLocalName(i))
-                sb.append("=\"")
-                sb.append(this.getValue(i))
-                sb.append("\" ")
+            for (i in 0..<this.length) {
+                map[this.getLocalName(i)] = this.getValue(i)
             }
         } catch (e: ArrayIndexOutOfBoundsException) {
             // https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
-            AppLog.e(AppLog.T.EDITOR, "IOOB occurred in toString. Dumping partial state:")
-            AppLog.e(AppLog.T.EDITOR, sb.trimEnd().toString())
+            AppLog.e(AppLog.T.EDITOR, "IOOB occurred in toMap. Dumping partial state:")
+            AppLog.e(AppLog.T.EDITOR, map.toString())
             throw e
         }
+        return map
+    }
 
-        return sb.trimEnd().toString()
+    override fun equals(other: Any?): Boolean {
+        if (other is AztecAttributes) {
+            return this.toMap() == other.toMap()
+        } else {
+            return super.equals(other)
+        }
     }
 }

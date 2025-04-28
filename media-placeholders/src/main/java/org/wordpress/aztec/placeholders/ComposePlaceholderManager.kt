@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -72,7 +73,10 @@ class ComposePlaceholderManager(
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
-    private val composeViewState = MutableStateFlow(emptyMap<String, ComposeView>())
+    private val _composeViewState = MutableStateFlow(emptyMap<String, ComposeView>())
+    private val composeViewState = _composeViewState.map { map ->
+        map.values.filter { it.visible }.sortedBy { it.topMargin }
+    }
 
     init {
         aztecText.setOnVisibilityChangeListener(this)
@@ -95,7 +99,7 @@ class ComposePlaceholderManager(
     fun Draw() {
         val density = LocalDensity.current
 
-        val values = composeViewState.collectAsState().value.values.filter { it.visible }.sortedBy { it.topMargin }
+        val values = composeViewState.collectAsState(emptyList()).value
 
         values.forEach { composeView ->
             Box(
@@ -123,7 +127,7 @@ class ComposePlaceholderManager(
     }
 
     fun onDestroy() {
-        composeViewState.value = emptyMap()
+        _composeViewState.value = emptyMap()
         aztecText.contentChangeWatcher.unregisterObserver(this)
         adapters.values.forEach { it.onDestroy() }
         adapters.clear()
@@ -348,10 +352,10 @@ class ComposePlaceholderManager(
      * Call this method to reload all the placeholders
      */
     suspend fun reloadAllPlaceholders() {
-        val tempPositionToId = composeViewState.value
+        val tempPositionToId = _composeViewState.value
         tempPositionToId.forEach { placeholder ->
             val isValid = positionToIdMutex.withLock {
-                composeViewState.value.containsKey(placeholder.key)
+                _composeViewState.value.containsKey(placeholder.key)
             }
             if (isValid) {
                 insertContentOverSpanWithId(placeholder.value.uuid)
@@ -409,7 +413,7 @@ class ComposePlaceholderManager(
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom = parentTextViewRect.top + height
 
-        val box = composeViewState.value[uuid]
+        val box = _composeViewState.value[uuid]
         val newWidth = adapter.calculateWidth(attrs, windowWidth) - EDITOR_INNER_PADDING
         val newHeight = height - EDITOR_INNER_PADDING
         val padding = 10
@@ -420,12 +424,12 @@ class ComposePlaceholderManager(
             val heightSame = existingView.height == newHeight
             val topMarginSame = existingView.topMargin == newTopPadding
             val leftMarginSame = existingView.leftMargin == newLeftPadding
-            if (widthSame && heightSame && topMarginSame && leftMarginSame) {
+            val attrsSame = existingView.attrs == attrs
+            if (widthSame && heightSame && topMarginSame && leftMarginSame && attrsSame) {
                 return
             }
         }
-
-        composeViewState.value = composeViewState.value.let { state ->
+        _composeViewState.value = _composeViewState.value.let { state ->
             val mutableState = state.toMutableMap()
             mutableState[uuid] = ComposeView(
                 uuid = uuid,
@@ -477,7 +481,7 @@ class ComposePlaceholderManager(
             val uuid = attrs.getValue(UUID_ATTRIBUTE)
             val adapter = adapters[attrs.getValue(TYPE_ATTRIBUTE)]
             adapter?.onPlaceholderDeleted(uuid)
-            composeViewState.value = composeViewState.value.let { state ->
+            _composeViewState.value = _composeViewState.value.let { state ->
                 val mutableState = state.toMutableMap()
                 mutableState.remove(uuid)
                 mutableState
@@ -492,7 +496,7 @@ class ComposePlaceholderManager(
     override fun beforeMediaDeleted(attrs: AztecAttributes) {
         if (validateAttributes(attrs)) {
             val uuid = attrs.getValue(UUID_ATTRIBUTE)
-            composeViewState.value = composeViewState.value.let { state ->
+            _composeViewState.value = _composeViewState.value.let { state ->
                 val mutableState = state.toMutableMap()
                 mutableState.remove(uuid)
                 mutableState
@@ -517,7 +521,7 @@ class ComposePlaceholderManager(
         if (opening) {
             val type = attributes.getValue(TYPE_ATTRIBUTE)
             attributes.getValue(UUID_ATTRIBUTE)?.also { uuid ->
-                composeViewState.value = composeViewState.value.let { state ->
+                _composeViewState.value = _composeViewState.value.let { state ->
                     val mutableState = state.toMutableMap()
                     mutableState.remove(uuid)
                     mutableState
@@ -596,17 +600,19 @@ class ComposePlaceholderManager(
 
     private suspend fun clearAllViews() {
         positionToIdMutex.withLock {
-            composeViewState.value = emptyMap()
+            _composeViewState.value = emptyMap()
         }
     }
 
     override fun onVisibility(visibility: Int) {
         launch {
             positionToIdMutex.withLock {
-                composeViewState.value = composeViewState.value.let { state ->
-                    state.mapValues { (_, value) -> value.copy(
-                        visible = View.VISIBLE == visibility
-                    ) }
+                _composeViewState.value = _composeViewState.value.let { state ->
+                    state.mapValues { (_, value) ->
+                        value.copy(
+                            visible = View.VISIBLE == visibility
+                        )
+                    }
                 }
             }
         }
@@ -620,7 +626,7 @@ class ComposePlaceholderManager(
     }
 
     fun getViewInPosition(x: Float, y: Float): ComposeView? {
-        return composeViewState.value.values.firstOrNull {
+        return _composeViewState.value.values.firstOrNull {
             (it.topMargin < y && (it.topMargin + it.height) > y) && (it.leftMargin < x && (it.leftMargin + it.width) > x)
         }
     }
